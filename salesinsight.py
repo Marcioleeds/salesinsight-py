@@ -461,6 +461,9 @@ def exportar_estatisticas_json(estatisticas, caminho="estatisticas_gerais.json")
 def main():
     """Executa o fluxo completo do SalesInsight PY."""
     caminho_dataset = "vendas.csv"
+    pasta_outputs = "outputs"
+
+    os.makedirs(pasta_outputs, exist_ok=True)
 
     if not os.path.exists(caminho_dataset):
         print("vendas.csv não encontrado. Gerando dataset...")
@@ -494,26 +497,58 @@ def main():
 
     estatisticas = calcular_estatisticas_gerais(registros_completos)
 
-    exportar_metricas_csv(metricas)
+    caminho_metricas = os.path.join(
+        pasta_outputs,
+        "metricas_por_mes.csv"
+    )
 
-    exportar_segmentacao_csv(segmentacao)
+    caminho_segmentacao = os.path.join(
+        pasta_outputs,
+        "segmentacao_clientes.csv"
+    )
 
-    exportar_estatisticas_json(estatisticas)
+    caminho_estatisticas = os.path.join(
+        pasta_outputs,
+        "estatisticas_gerais.json"
+    )
 
-    with open("estatisticas_gerais.json", "r", encoding="utf-8") as arquivo:
+    exportar_metricas_csv(
+        metricas,
+        caminho_metricas
+    )
+
+    exportar_segmentacao_csv(
+        segmentacao,
+        caminho_segmentacao
+    )
+
+    exportar_estatisticas_json(
+        estatisticas,
+        caminho_estatisticas
+    )
+
+    with open(
+        caminho_estatisticas,
+        "r",
+        encoding="utf-8"
+    ) as arquivo:
         estatisticas_lidas = json.load(arquivo)
 
     print("\n=== ESTATÍSTICAS GERAIS ===")
+
     for chave, valor in estatisticas_lidas.items():
         print(f"{chave}: {valor}")
 
     print("\n=== ARQUIVOS GERADOS ===")
-    for arquivo in [
-        "vendas.csv",
-        "metricas_por_mes.csv",
-        "segmentacao_clientes.csv",
-        "estatisticas_gerais.json",
-    ]:
+
+    arquivos_gerados = [
+        caminho_dataset,
+        caminho_metricas,
+        caminho_segmentacao,
+        caminho_estatisticas,
+    ]
+
+    for arquivo in arquivos_gerados:
         if os.path.exists(arquivo):
             print(f"- {arquivo}")
 
